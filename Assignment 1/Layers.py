@@ -1,5 +1,6 @@
 # The code file for layers
 
+import numpy as np
 
 # Layers(30 Points + 15 Bonus Points)
 
@@ -71,17 +72,19 @@ def Sigmoid():
 
 
 # Loss Functions and Metrics(18 points)
-
+# P -> prediction
+# Y -> ground truth
 def MSE(P,Y):
-    return None
+    return np.mean((P-Y)**2)
 
 
 def CrossEntropy(P,Y):
-    return None
+    return -log(1-P) #not sure
 
 
 def Hinge(P,Y):
-    return None
+    return np.max(0, Y - (1-2*Y)*P)
+
 
 # Output: A single value in %
 def Accuracy(P,Y):
