@@ -6,8 +6,40 @@ import numpy as np
 
 # Dense Layer(5 pts)
 # X->hidden layers
-def Dense(X,hidden_layers):
-    return None
+class Base():
+    def __init__(self, input, N):
+        self.N = N
+        self.input = input
+        limit = np.sqrt(2 / float(input + N))
+        self.weights = np.random.uniform(low=-limit, high=limit, size=(input, N))
+        self.biases = np.random.uniform(low=-limit, high=limit, size=(N, 1))
+
+
+    def forward(input, N, weights, biases):
+        return None
+
+    def backward(dz):
+        return None
+
+class Dense(Base):
+    def __init__(self, input, N):
+        self.N = N
+        self.input = input
+        # Xavier Weight initialization with uniform distribution
+        limit = np.sqrt(2 / float(input + N))
+        self.weights = np.random.uniform(low = -limit, high = limit, size=(input, N))
+        self.biases = np.random.uniform(low = -limit, high = limit, size=(N,))
+
+    #N-number of neurons
+    def forward(input, N, weights, biases):
+        #f = XW + b
+        layeroutput = np.dot(input, weights) + biases
+        return layeroutput
+
+    def backward(dz):
+        gradient = None
+        return gradient
+
 
 
 # Convolutional Layer(10 pts)
