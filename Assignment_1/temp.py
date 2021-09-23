@@ -1,3 +1,4 @@
+from numpy.core.fromnumeric import reshape
 from Layers_copy import *
 import numpy as np
 
@@ -17,12 +18,15 @@ print("Forward2 shape",forward2.shape)
 # softmax = Softmax()
 # softmax_output = softmax.forward(forward2)
 # print("Softmax Shape",softmax_output.shape)
+y = reshape(2,1)
+print("y shape ",y.shape)
 soft_cross = Softmax_CrossEntropy()
 soft_cross_output = soft_cross.forward(forward2,y)
+soft_cross_output_back = soft_cross.backward(soft_cross_output,y)
+print("nikhil", soft_cross_output.shape)
 
-
-gradient_val = np.random.rand(2,1)
-gradeint2 = new2.backward(gradient_val)
+# gradient_val = np.random.rand(2,1)
+gradeint2 = new2.backward(soft_cross_output_back)
 gradeint1 = new1.backward(gradeint2)
 print(gradeint1.shape)
 # backward = new.backward(val)
