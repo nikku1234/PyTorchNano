@@ -145,7 +145,7 @@ class ReLU(Base):
                 self.activated_neuorons[i] = 1
             else:
                 self.activated_neuorons[i] = 0
-        self.activated_neuorons = self.X
+        # self.activated_neuorons = self.X
         return np.dot(self.activated_neuorons,self.X)
 
 # class Softmax(Base):

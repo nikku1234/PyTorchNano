@@ -11,9 +11,13 @@ class Net:
         print(len(self.order))
 
     def forward(self,value):
+        temp = value
         for i in self.order:
-            i.forward(value)
+            temp = i.forward(temp)
+            
 
     def backward(self,dx):
-        print("nikhil")
+        temp = dx
+        for i in self.order[::-1]:
+            temp = i.backward(temp)
 
