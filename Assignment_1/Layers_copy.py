@@ -133,20 +133,20 @@ class Dense(Base):
 
 # Activation functions(7 points)
 
-# class ReLU(Base):
-#     def __init__(self):
-#         pass
-#     def forward(self,X):
-#         self.X = X
-#         return np.maximum(X,0)
-#     def backward(self,val):
-#         for i in range(len(self.X)):
-#             if self.X[i] > 0:
-#                 self.X[i] = 1
-#             else:
-#                 self.X[i] = 0
-#         self.activated_neuorons = self.X
-#         return np.dot(self.activated_neuorons,val)
+class ReLU(Base):
+    def __init__(self):
+        pass
+    def forward(self,X):
+        self.X = X
+        return np.maximum(X,0)
+    def backward(self,val):
+        for i in range(len(self.X)):
+            if self.X[i] > 0:
+                self.activated_neuorons[i] = 1
+            else:
+                self.activated_neuorons[i] = 0
+        self.activated_neuorons = self.X
+        return np.dot(self.activated_neuorons,self.X)
 
 # class Softmax(Base):
 #     def __init__(self):
