@@ -22,6 +22,10 @@ train_images = idx2numpy.convert_from_file(
 train_labels = idx2numpy.convert_from_file(
     r"/Users/nikhil/Documents/GitHub/CSE-673-ComputationalVision/Assignment_1/Dataset/train-labels-idx1-ubyte")
 
-model.forward(1)
-# print(train_images.shape)
+batch_size = 32
+epoch = 3
+
+for i in range(epoch):
+    for 
+
 
