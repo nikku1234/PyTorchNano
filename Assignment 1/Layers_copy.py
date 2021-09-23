@@ -26,35 +26,34 @@ class Base():
 # X->hidden layers
 class Dense(Base):
     def __init__(self, input, N):
-        self.N = N
         self.input = input
-        # print("self.input",self.input)
+        self.N = N
         # Xavier Weight initialization with uniform distribution
         limit = np.sqrt(2 / float(input + N))
         self.weights = np.random.uniform(low = -limit, high = limit, size=(input, N))
         self.biases = np.random.uniform(low = -limit, high = limit, size=(N,1))
-        
-        # self.weights = np.random.rand(input,N)
-        # print("shape of weight",self.weights.shape)
-        # self.biases = np.random.rand(input,N)
-        # self.activation_values = []
+        # Testing code
+        self.gradient_weight_shape = (input,N)
+        self.gradient_bias_shape = (N,1)
+        self.gradient_return = (input,N)
         
 
     #N-number of neurons
     def forward(self,input_val):
         self.input_val = input_val
         # F = X*W + b
-        # print("shape of input",self.input.shape)
         self.layer_output = np.dot(self.weights.T, self.input_val) + self.biases
-        # print((self.layer_output).shape)
-
-        # self.activation_values.append(layer_output)
         return self.layer_output
 
-    def backward(self, val):
+    def backward(self, delta_value):
         #Compute the gradient
-        gradient = np.dot(self.input,val)
-        return gradient
+        self.new_ones = np.ones((self.N,1))
+        self.delta_value = delta_value
+        dW = np.dot(self.input_val,self.delta_value.T)
+        db = np.dot(self.new_ones,self.delta_value.T)
+        dx = np.dot(self.weights,self.delta_value)
+        print("return of dx",dx.shape)
+        return dx
 
 
 
@@ -160,22 +159,18 @@ class Softmax(Base):
     def backward(self,x):
         pass
 
-# def Softmax(x):
-#     return np.exp(x) / np.sum(np.exp(x), axis=0)
 
-# class Sigmoid(Base):
-#     def __init__(self):
-#         # super().__init__()
-#         pass
-#     def forward(self,X):
-#         self.X = X
-#         self.Z = 1.0 / (1.0 + np.exp(-1.0*self.X))
-#         return self.Z
-#     def backward(self,val):
-#         return super().backward()
-# def Sigmoid(z):
-#     z = 1.0 / (1.0 + np.exp(-1.0*z))
-#     return z
+
+class Sigmoid(Base):
+    def __init__(self):
+        # super().__init__()
+        pass
+    def forward(self,X):
+        self.X = X
+        self.Z = 1.0 / (1.0 + np.exp(-1.0*self.X))
+        return self.Z
+    def backward(self,val):
+        return super().backward()
 
 
 
@@ -186,10 +181,21 @@ class Softmax(Base):
 #     return np.mean((P-Y)**2)
 
 
-# def CrossEntropy(P,Y):
-#     return -np.log(1-P) #not sure
+class CrossEntropy(Base):
+    def __init__(self):
+        pass
+    def forward():
+        pass
+    def backward():
+        pass
 
-
+class Hinge(Base):
+    def __init__(self):
+        pass
+    def forward(self):
+        pass
+    def backward(self):
+        pass
 # def Hinge(P,Y):
 #     return np.max(0, Y - (1-2*Y)*P)
 
