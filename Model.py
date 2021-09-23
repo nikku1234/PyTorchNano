@@ -1,5 +1,5 @@
 from GraphNet import Net
-from Layers import *
+from Layers_copy import *
 
 def create_model():
 	Model = Net()
