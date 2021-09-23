@@ -198,8 +198,6 @@ class Softmax(Base):
 
 class Softmax_CrossEntropy(Base):
     def __init__(self):
-        self.count = 0
-        self.total = 0
         # super().__init__()
         pass
     def forward(self,X,Y):
@@ -219,14 +217,7 @@ class Softmax_CrossEntropy(Base):
 
 
     def backward(self,predicted,Y):
-        predicted_index = list(predicted).index(max(predicted))
-        if list(Y).index(1) == predicted_index:
-            self.count = self.count + 1
-            self.total = self.total + 1
-        else:
-            self.total = self.total + 1
-        print("Accuracy:")
-        print(self.count/self.total)
+
         #print("lolzmaooo")
         #print(predicted)
         #print("lulz")
@@ -234,7 +225,6 @@ class Softmax_CrossEntropy(Base):
         # self.predicted = predicted
         # self.Y = Y
         return predicted-Y
-        
 
 
 class CrossEntropy(Base):
@@ -257,8 +247,16 @@ class Hinge(Base):
 
 
 # # Output: A single value in %
-# def Accuracy(P,Y):
-#     return None
+def Accuracy(P,Y):
+    count = 0
+    total = 0
+    for i in range(len(P)):
+        if P[i] == Y[i]:
+            count = count + 1
+            total = total + 1
+        else:
+            total = total + 1
+    return (count/total)*100
 
 
 # # Output: A 10 X 10 matrix

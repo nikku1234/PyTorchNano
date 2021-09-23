@@ -1,4 +1,4 @@
-from Layers_copy import Softmax_CrossEntropy, Softmax
+from Layers_copy import *
 from Model import create_model
 import idx2numpy
 import numpy as np
@@ -42,7 +42,10 @@ for i in range(0,len(train_labels)):
 # print(flatten.reshape(784,1).shape)
 soft_cross = Softmax_CrossEntropy()
 softmax = Softmax()
+accuracy = 0
 for i in range(epoch):
+    predicted_index = []
+    actual_index = []
     for j in range(0,len(train_images)):
         print(j)
         # if i % batch_size != 0:
@@ -51,18 +54,24 @@ for i in range(epoch):
         #print(forward_output)
 
         # softmax_output = softmax.forward(forward_output)
-        # print("lolzmao")
         # print(softmax_output)
         soft_cross_output,crossentropy_out = soft_cross.forward(forward_output, train_labels_one_hot[j].reshape((10, 1)))
-        print("crossentropy_out", crossentropy_out)
+        #print("crossentropy_out", crossentropy_out)
         soft_cross_output_loss = soft_cross.backward(soft_cross_output, train_labels_one_hot[j].reshape((10,1)))
         #print(soft_cross_output_loss)
+
+        #Appending predicted and actual indices for accuracy
+        predicted_index.append(list(soft_cross_output).index(max(soft_cross_output)))
+        actual_index.append(list(train_labels_one_hot[j].reshape((10,1))).index(1))
         print("\nBackward")
         model.backward(soft_cross_output_loss)
         print("backward done")
         if (j% batch_size == 0 and j!=0):
             model.update()
             print("updated")
+    accuracy = Accuracy(predicted_index, actual_index)
+    print("Accuracy: " + str(accuracy) + "%")
+
 
 
 
