@@ -11,10 +11,17 @@ import numpy as np
 #---------------------------------------------
 # The following method would create the model 
 #---------------------------------------------
-# model = create_model()
+model = create_model()
 
 test_images = idx2numpy.convert_from_file(
-    r"Assignment 1/Dataset/t10k-images-idx3-ubyte")
-test_labels = idx2numpy.convert_from_file(r"/Users/nikhil/Documents/GitHub/CSE-673-ComputationalVision/Assignment\ 1/Dataset/t10k-labels.idx1-ubyte")
-train_images = idx2numpy.convert_from_file(r"/Users/nikhil/Documents/GitHub/CSE-673-ComputationalVision/Assignment\ 1/Dataset/train-images.idx3-ubyte")
-train_labels = idx2numpy.convert_from_file(r"/Users/nikhil/Documents/GitHub/CSE-673-ComputationalVision/Assignment\ 1/Dataset/train-labels.idx1-ubyte")
+    r"/Users/nikhil/Documents/GitHub/CSE-673-ComputationalVision/Assignment_1/Dataset/t10k-images-idx3-ubyte")
+test_labels = idx2numpy.convert_from_file(
+    r"/Users/nikhil/Documents/GitHub/CSE-673-ComputationalVision/Assignment_1/Dataset/t10k-labels-idx1-ubyte")
+train_images = idx2numpy.convert_from_file(
+    r"/Users/nikhil/Documents/GitHub/CSE-673-ComputationalVision/Assignment_1/Dataset/train-images-idx3-ubyte")
+train_labels = idx2numpy.convert_from_file(
+    r"/Users/nikhil/Documents/GitHub/CSE-673-ComputationalVision/Assignment_1/Dataset/train-labels-idx1-ubyte")
+
+model.forward(1)
+# print(train_images.shape)
+
