@@ -212,6 +212,7 @@ class Softmax_CrossEntropy(Base):
         cross_entropy = -1 * (Y.T @ np.log(softmax_result))
         return cross_entropy
 
+
     def backward(self,predicted,Y):
         # self.predicted = predicted
         # self.Y = Y

@@ -43,19 +43,20 @@ for i in range(0,len(train_labels)):
 soft_cross = Softmax_CrossEntropy()
 
 for i in range(epoch):
-    for i in range(len(train_images)):
+    for j in range(0,len(train_images)):
+        print(j)
         # if i % batch_size != 0:
         print("forward")
-        forward_output = model.forward(train_images[i].flatten().reshape(784, 1))
+        forward_output = model.forward(train_images[j].flatten().reshape(784, 1))
         # print(forward_output)
 
-        soft_cross_output = soft_cross.forward(forward_output, train_labels_one_hot[i].reshape((10,1)))
+        soft_cross_output = soft_cross.forward(forward_output, train_labels_one_hot[j].reshape((10,1)))
         print("loss", soft_cross_output)
-        soft_cross_output_loss = soft_cross.backward(soft_cross_output, train_labels_one_hot[i].reshape((10,1)))
+        soft_cross_output_loss = soft_cross.backward(soft_cross_output, train_labels_one_hot[j].reshape((10,1)))
         print("\nBackward")
         model.backward(soft_cross_output_loss)
         print("backward done")
-        if (i+1) % batch_size == 0:
+        if (j% batch_size == 0 and j!=0):
             model.update()
             print("updated")
 
