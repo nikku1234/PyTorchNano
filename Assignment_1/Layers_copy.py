@@ -36,6 +36,8 @@ class Dense(Base):
         self.gradient_weight_shape = (input,N)
         self.gradient_bias_shape = (N,1)
         self.gradient_return = (input,N)
+        self.dW = 0
+        self.db = 0
         
 
     #N-number of neurons
@@ -47,13 +49,22 @@ class Dense(Base):
 
     def backward(self, delta_value):
         #Compute the gradient
-        self.new_ones = np.ones((self.N,1))
+        # self.new_ones = np.ones((self.N,1))
         self.delta_value = delta_value
-        dW = np.dot(self.input_val,self.delta_value.T)
-        db = np.dot(self.new_ones,self.delta_value.T)
-        dx = np.dot(self.weights,self.delta_value)
-        print("return of dx",dx.shape)
-        return dx
+        self.dW += np.dot(self.input_val,self.delta_value.T)
+        self.db += self.delta_value
+        self.dx = np.dot(self.weights,self.delta_value)
+        # print("return of dx",self.dx.shape)
+        return self.dx / 32
+    def update(self):
+        assert self.weights.shape == self.dW.shape
+        self.weights = self.weights - (0.001/32) * self.dW
+        assert self.biases.shape == self.db.shape
+        self.biases = self.biases - (0.001/32) * self.db
+        self.dW = np.zeros(self.dW.shape)
+        self.db = np.zeros(self.db.shape)
+    # def update(self):
+    #     self.dW /= batchsize
 
 
 
@@ -138,6 +149,7 @@ class ReLU(Base):
         pass
     def forward(self,X):
         self.X = X
+        self.activated_neuorons = np.zeros(self.X.shape)
         return np.maximum(X,0)
     def backward(self,val):
         for i in range(len(self.X)):
@@ -146,7 +158,11 @@ class ReLU(Base):
             else:
                 self.activated_neuorons[i] = 0
         # self.activated_neuorons = self.X
-        return np.dot(self.activated_neuorons,self.X)
+        print("shape of relu backward", np.multiply(
+            self.activated_neuorons,val).shape)
+        return np.multiply(self.activated_neuorons, val)
+    def update(self):
+        pass
 
 # class Softmax(Base):
 #     def __init__(self):
@@ -185,10 +201,15 @@ class Softmax_CrossEntropy(Base):
         # super().__init__()
         pass
     def forward(self,X,Y):
-        self.X = X
+        self.X = X + 1e-9
         self.Y = Y
-        softmax_result = (np.exp(self.X) / np.sum(np.exp(self.X), axis=0))
-        cross_entropy = -(Y * np.log(softmax_result))
+        # softmax_result = (np.exp(self.X) / np.sum(np.exp(self.X), axis=0))
+        z = self.X - np.max(self.X, axis=-1, keepdims=True)
+        numerator = np.exp(z)
+        denominator = np.sum(numerator)#, axis=-1, keepdims=True)
+        softmax_result = numerator / denominator
+        # return softmax
+        cross_entropy = -1 * (Y.T @ np.log(softmax_result))
         return cross_entropy
 
     def backward(self,predicted,Y):
