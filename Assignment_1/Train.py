@@ -1,4 +1,4 @@
-from Layers_copy import Softmax_CrossEntropy
+from Layers_copy import Softmax_CrossEntropy, Softmax
 from Model import create_model
 import idx2numpy
 import numpy as np
@@ -15,13 +15,13 @@ import numpy as np
 model = create_model()
 
 test_images = idx2numpy.convert_from_file(
-    r"/Users/nikhil/Documents/GitHub/CSE-673-ComputationalVision/Assignment_1/Dataset/t10k-images-idx3-ubyte")
+    r"./Dataset/t10k-images-idx3-ubyte")
 test_labels = idx2numpy.convert_from_file(
-    r"/Users/nikhil/Documents/GitHub/CSE-673-ComputationalVision/Assignment_1/Dataset/t10k-labels-idx1-ubyte")
+    r"./Dataset/t10k-labels-idx1-ubyte")
 train_images = idx2numpy.convert_from_file(
-    r"/Users/nikhil/Documents/GitHub/CSE-673-ComputationalVision/Assignment_1/Dataset/train-images-idx3-ubyte")
+    r"./Dataset/train-images-idx3-ubyte")
 train_labels = idx2numpy.convert_from_file(
-    r"/Users/nikhil/Documents/GitHub/CSE-673-ComputationalVision/Assignment_1/Dataset/train-labels-idx1-ubyte")
+    r"./Dataset/train-labels-idx1-ubyte")
 
 batch_size = 32
 epoch = 3
@@ -41,18 +41,22 @@ for i in range(0,len(train_labels)):
 # print(flatten.shape)
 # print(flatten.reshape(784,1).shape)
 soft_cross = Softmax_CrossEntropy()
-
+softmax = Softmax()
 for i in range(epoch):
     for j in range(0,len(train_images)):
         print(j)
         # if i % batch_size != 0:
         print("forward")
         forward_output = model.forward(train_images[j].flatten().reshape(784, 1))
-        # print(forward_output)
+        #print(forward_output)
 
-        soft_cross_output = soft_cross.forward(forward_output, train_labels_one_hot[j].reshape((10,1)))
-        print("loss", soft_cross_output)
+        # softmax_output = softmax.forward(forward_output)
+        # print("lolzmao")
+        # print(softmax_output)
+        soft_cross_output,crossentropy_out = soft_cross.forward(forward_output, train_labels_one_hot[j].reshape((10, 1)))
+        print("crossentropy_out", crossentropy_out)
         soft_cross_output_loss = soft_cross.backward(soft_cross_output, train_labels_one_hot[j].reshape((10,1)))
+        #print(soft_cross_output_loss)
         print("\nBackward")
         model.backward(soft_cross_output_loss)
         print("backward done")

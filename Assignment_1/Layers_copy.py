@@ -54,8 +54,9 @@ class Dense(Base):
         self.dW += np.dot(self.input_val,self.delta_value.T)
         self.db += self.delta_value
         self.dx = np.dot(self.weights,self.delta_value)
+        #print(self.dx)
         # print("return of dx",self.dx.shape)
-        return self.dx / 32
+        return self.dx
     def update(self):
         assert self.weights.shape == self.dW.shape
         self.weights = self.weights - (0.001/32) * self.dW
@@ -158,22 +159,21 @@ class ReLU(Base):
             else:
                 self.activated_neuorons[i] = 0
         # self.activated_neuorons = self.X
-        print("shape of relu backward", np.multiply(
-            self.activated_neuorons,val).shape)
+        # print("shape of relu backward", np.multiply(self.activated_neuorons,val).shape)
         return np.multiply(self.activated_neuorons, val)
     def update(self):
         pass
 
-# class Softmax(Base):
-#     def __init__(self):
-#         # super().__init__()
-#         pass
-#     def forward(self,x):
-#         self.x = x
-#         return (np.exp(x) / np.sum(np.exp(x), axis=0))
+class Softmax(Base):
+     def __init__(self):
+         # super().__init__()
+         pass
+     def forward(self,x):
+         self.x = x
+         return np.exp(x) / np.sum(np.exp(x), axis=0)
     
-#     def backward(self,x):
-#         pass
+     def backward(self,x):
+         pass
 
 
 
@@ -198,6 +198,8 @@ class ReLU(Base):
 
 class Softmax_CrossEntropy(Base):
     def __init__(self):
+        self.count = 0
+        self.total = 0
         # super().__init__()
         pass
     def forward(self,X,Y):
@@ -208,12 +210,27 @@ class Softmax_CrossEntropy(Base):
         numerator = np.exp(z)
         denominator = np.sum(numerator)#, axis=-1, keepdims=True)
         softmax_result = numerator / denominator
+        softmax_result = np.exp(self.X) / np.sum(np.exp(self.X), axis=0)
         # return softmax
+
+        # CrossEntropy
         cross_entropy = -1 * (Y.T @ np.log(softmax_result))
-        return cross_entropy
+        return softmax_result,cross_entropy
 
 
     def backward(self,predicted,Y):
+        predicted_index = list(predicted).index(max(predicted))
+        if list(Y).index(1) == predicted_index:
+            self.count = self.count + 1
+            self.total = self.total + 1
+        else:
+            self.total = self.total + 1
+        print("Accuracy:")
+        print(self.count/self.total)
+        #print("lolzmaooo")
+        #print(predicted)
+        #print("lulz")
+        #print(Y)
         # self.predicted = predicted
         # self.Y = Y
         return predicted-Y

@@ -16,15 +16,15 @@ class Net:
             # print(i)
             # print(temp.shape)
             temp = i.forward(temp)
-            print("done",i)
+            # print("done",i)
         return temp  
 
     def backward(self,dx):
         temp = dx
         for i in self.order[::-1]:
-            print("Shape of the gradient returned",temp.shape)
+            # print("Shape of the gradient returned",temp.shape)
             temp = i.backward(temp)
-            print("done",i)
+            # print("done",i)
         return temp
     
     def update(self):
