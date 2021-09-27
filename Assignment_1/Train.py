@@ -14,14 +14,13 @@ import numpy as np
 #---------------------------------------------
 model = create_model()
 
-test_images = idx2numpy.convert_from_file(
-    r"./Dataset/t10k-images-idx3-ubyte")
+test_images = idx2numpy.convert_from_file(r"Assignment_1/Dataset/t10k-images-idx3-ubyte")
 test_labels = idx2numpy.convert_from_file(
-    r"./Dataset/t10k-labels-idx1-ubyte")
+    r"Assignment_1/Dataset/t10k-labels-idx1-ubyte")
 train_images = idx2numpy.convert_from_file(
-    r"./Dataset/train-images-idx3-ubyte")
+    r"Assignment_1/Dataset/train-images-idx3-ubyte")
 train_labels = idx2numpy.convert_from_file(
-    r"./Dataset/train-labels-idx1-ubyte")
+    r"Assignment_1/Dataset/train-labels-idx1-ubyte")
 
 batch_size = 32
 epoch = 3
@@ -47,9 +46,9 @@ for i in range(epoch):
     predicted_index = []
     actual_index = []
     for j in range(0,len(train_images)):
-        print(j)
+        # print(j)
         # if i % batch_size != 0:
-        print("forward")
+        # print("forward")
         forward_output = model.forward(train_images[j].flatten().reshape(784, 1))
         #print(forward_output)
 
@@ -63,14 +62,16 @@ for i in range(epoch):
         #Appending predicted and actual indices for accuracy
         predicted_index.append(list(soft_cross_output).index(max(soft_cross_output)))
         actual_index.append(list(train_labels_one_hot[j].reshape((10,1))).index(1))
-        print("\nBackward")
+        # print("\nBackward")
         model.backward(soft_cross_output_loss)
-        print("backward done")
+        # print("backward done")
         if (j% batch_size == 0 and j!=0):
             model.update()
-            print("updated")
-    accuracy = Accuracy(predicted_index, actual_index)
-    print("Accuracy: " + str(accuracy) + "%")
+            # print("updated")  
+        accuracy = Accuracy(predicted_index, actual_index)
+        print("Accuracy: " + str(accuracy) + "%")
+
+
 
 
 
