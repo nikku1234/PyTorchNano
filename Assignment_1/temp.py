@@ -14,10 +14,12 @@ relu1 = np.maximum(0,forward1)
 new2 = Dense(10,2)
 forward2 = new2.forward(relu1)
 print("Forward2 shape",forward2.shape)
+
 # print(forward2)
 # softmax = Softmax()
 # softmax_output = softmax.forward(forward2)
 # print("Softmax Shape",softmax_output.shape)
+
 y = reshape(2,1)
 print("y shape ",y.shape)
 soft_cross = Softmax_CrossEntropy()

@@ -57,6 +57,7 @@ class Dense(Base):
         #print(self.dx)
         # print("return of dx",self.dx.shape)
         return self.dx
+
     def update(self):
         assert self.weights.shape == self.dW.shape
         self.weights = self.weights - (0.001/32) * self.dW
@@ -73,21 +74,22 @@ class Dense(Base):
 # Conv(X, 10, (3x3), 1, 1) - - > takes X as inputsize, 
 #                               produces output with 10channels, 
 # #                               uses a 3 x 3 kernel with padding and stride both equal to 1.
-# class Conv(Base):
-#     def __init__(self, X, no_of_channels, kernal_size, padding, stride):
-#         # super().__init__()
-#         self.X = X
-#         self.no_of_channels = no_of_channels
-#         self.kernal_size = kernal_size
-#         self.padding = padding
-#         self.stride = stride
+class Conv(Base):
+    def __init__(self, X, no_of_channels, kernal_size, padding, stride):
+        # super().__init__()
+        self.X = X
+        self.no_of_channels = no_of_channels
+        self.kernal_size = kernal_size
+        self.padding = padding
+        self.stride = stride
 
-#     def forward(self):
-#         pass
+    def forward(self):
+        
+        pass
 
-#     def backward(self):
-#         pass
-#         # return super().backward(x, y)
+    def backward(self):
+        pass
+        # return super().backward(x, y)
 
 
 # # Average Pooling(5 pts)
@@ -123,10 +125,22 @@ class Dense(Base):
 
 # Flatten Layer(5 pts)
 # Flatten() -> takes the input and flattensthe last dimension
-# class Flatten(Base):
-#     def __init__(self,X):
-#         # super().__init__()
-#         return (self.X).flatten()
+class Flatten(Base):
+    def __init__(self):
+        # super().__init__()
+        pass
+
+    def forward(self,X):
+        self.X = X
+        self.shape = self.X.shape
+        self.flatten_val = self.X.flatten()
+        self.flatten_val_reshape = self.flatten_val.reshape(self.shape[0]*self.shape[1],1)
+        return self.flatten_val_reshape
+    
+    def backward(self,return_x):
+        self.return_x = return_x
+        self.original_shape = self.return_x.reshape(self.shape[0],self.shape[1])
+        return self.original_shape
 
 
 
@@ -253,9 +267,8 @@ def Accuracy(P,Y):
     for i in range(len(P)):
         if P[i] == Y[i]:
             count = count + 1
-            total = total + 1
-        else:
-            total = total + 1
+        total = total + 1
+        # total = total + 1
     return (count/total)*100
 
 
