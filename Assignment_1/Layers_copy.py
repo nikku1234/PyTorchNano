@@ -93,7 +93,7 @@ class Conv(Base):
 
 
 # # Average Pooling(5 pts)
-# # AvgPool(X, (2x2), 1, 1) - - > takes X as inputsize, uses a 2 x 2 kernel withpadding and stride both equal to 1
+# # AvgPool(X, (2x2), 1, 1) - - > takes X as inputsize, uses a 2 x 2 kernel with padding and stride both equal to 1
 # class AvgPool(Base):
 #     def __init__(self, X, kernal_size, padding, stride):
 #         self.X = X

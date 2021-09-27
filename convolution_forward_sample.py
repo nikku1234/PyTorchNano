@@ -128,71 +128,85 @@ from numpy.core.fromnumeric import shape, size
 # print("result",result)
 
 
-new_image = np.array([[1, 0, 0, 2, 2],
-                      [2, 2, 1, 0, 0],
-                      [2, 0, 2, 1, 1],
-                      [2, 1, 1, 2, 0],
-                      [1, 2, 2, 0, 1]]).reshape(5, 5)
-
-print(new_image)
-
-new_kernal = np.array([[1, 0, 1],
-                       [0, 1, 0],
-                       [-1, 1, 0]]).reshape(3, 3)
-
-# new_image = np.random.randint(3, size=(25, 25))
-
-# new_kernal = np.random.randint(3, size=(7, 3))
-
-padding = 1
-
-#numpy.org
-def pad_with(vector, pad_width, iaxis, kwargs):
-    pad_value = kwargs.get('padder', 0)
-    vector[:pad_width[0]] = pad_value
-    vector[-pad_width[1]:] = pad_value
 
 
-padded_image = np.pad(new_image, 1, pad_with,padder="0")
+#working code
 
-print("padded image\n", padded_image)
-print("new kernal\n", new_kernal)
-stride = 2
-print("result")
-a = 0
-b = new_kernal.shape[0]
-new_width = int(
-    (padded_image.shape[0]-new_kernal.shape[0])/stride + 1)  # (W1−F)/S+1
-new_height = int(
-    (padded_image.shape[1]-new_kernal.shape[1])/stride + 1)  # (W2−F)/S+1
-print(new_width, new_height)
-result = np.zeros((new_width, new_height))
-for i in range(0, new_width):
-    # a = i
-    c = 0
-    d = new_kernal.shape[1]
-    iter = 0
-    while d <= padded_image.shape[0]:
-        print("a,b", a, b)
-        print("c,d",c,d)
-        print("multipying\n")
-        print("padded image", padded_image[a:b, c:d])
-        print("*")
-        print("kernal", new_kernal)
-        conv = np.sum(padded_image[a:b, c:d]*new_kernal)
-        # print(conv, sep="/t")
-        c += stride
-        d += stride
-        result[i][iter] = conv
-        iter += 1
-        print("\n")
-    print("\t")
-    a += stride
-    b = a+new_kernal.shape[1]
-    # b = new_kernal.shape[0]
+# new_image = np.array([[1, 0, 0, 2, 2],
+#                       [2, 2, 1, 0, 0],
+#                       [2, 0, 2, 1, 1],
+#                       [2, 1, 1, 2, 0],
+#                       [1, 2, 2, 0, 1]]).reshape(5, 5)
+
+# print(new_image)
+
+# new_kernal = np.array([[1, 0, 1],
+#                        [0, 1, 0],
+#                        [-1, 1, 0]]).reshape(3, 3)
+
+# # new_image = np.random.randint(3, size=(25, 25))
+
+# # new_kernal = np.random.randint(3, size=(7, 3))
+
+# padding = 1
+
+# #numpy.org
+# def pad_with(vector, pad_width, iaxis, kwargs):
+#     pad_value = kwargs.get('padder', 0)
+#     vector[:pad_width[0]] = pad_value
+#     vector[-pad_width[1]:] = pad_value
+
+
+# padded_image = np.pad(new_image, 1, pad_with,padder="0")
+
+# print("padded image\n", padded_image)
+# print("new kernal\n", new_kernal)
+# stride = 2
+# print("result")
+# a = 0
+# b = new_kernal.shape[0]
+# new_width = int(
+#     (padded_image.shape[0]-new_kernal.shape[0])/stride + 1)  # (W1−F)/S+1
+# new_height = int(
+#     (padded_image.shape[1]-new_kernal.shape[1])/stride + 1)  # (W2−F)/S+1
+# print(new_width, new_height)
+# result = np.zeros((new_width, new_height))
+# for i in range(0, new_width):
+#     # a = i
+#     c = 0
+#     d = new_kernal.shape[1]
+#     iter = 0
+#     while d <= padded_image.shape[0]:
+#         print("a,b", a, b)
+#         print("c,d",c,d)
+#         print("multipying\n")
+#         print("padded image", padded_image[a:b, c:d])
+#         print("*")
+#         print("kernal", new_kernal)
+#         conv = np.sum(padded_image[a:b, c:d]*new_kernal)
+#         # print(conv, sep="/t")
+#         c += stride
+#         d += stride
+#         result[i][iter] = conv
+#         % += 1
+#         print("\n")
+#     print("\t")
+#     a += stride
+#     b = a+new_kernal.shape[1]
+#     # b = new_kernal.shape[0]
     
-    # b += stride
+#     # b += stride
 
-print("result", result)
+# print("result", result)
 
 
+
+#working on channels
+
+# image = np.random(size=(3,5,5))
+img = np.random.random_integers(0, 255, (5, 5, 3))
+kernal = np.random.random_integers(0, 5, (3, 3, 3))
+
+print(img.shape)
+# print(img)
+print(kernal.shape)
