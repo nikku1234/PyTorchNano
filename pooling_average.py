@@ -82,3 +82,47 @@ for channel in range(0, no_of_channels):
 print("result", pool_image)
 # print("result", pool_image.shape)
 # print("result", pool_image[0][0])
+
+
+#back prop of avg pooling
+
+backward_val = np.ones(padded_image.shape)
+
+for channel in range(0, no_of_channels):
+    a = 0
+    b = kernal_size[0]
+    for i in range(0, new_width):
+        # a = i
+        c = 0
+        d = kernal_size[1]
+        iter = 0
+        while d <= padded_image.shape[2]:
+            print("a,b", a, b)
+            print("c,d", c, d)
+            print("multipying\n")
+            print("padded image", padded_image[channel][a:b, c:d])
+            print("*")
+            # print("kernal", new_kernal[channel])
+            max_val = np.average(padded_image[channel][a:b, c:d])
+            return_val = max_val / kernal_size[0]
+            backward_val[channel][a:b, c:d] *= return_val
+            print(return_val)
+            # conv = np.sum(padded_image[channel][a:b, c:d]*new_kernal[channel])
+            # print(conv, sep="/t")
+            c += stride
+            d += stride
+            pool_image[channel][i][iter] = max_val
+            # % += 1
+            iter += 1
+            print("\n")
+        print("\t")
+        a += stride
+        b = a+kernal_size[1]
+        # b = new_kernal.shape[0]
+    # print("result", result)
+
+    # b += stride
+
+print("result", backward_val)
+# print("result", pool_image.shape)
+# print("result", pool_image[0][0])
