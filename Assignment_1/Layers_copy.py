@@ -1,6 +1,8 @@
 # The code file for layers
 
 # from _typeshed import Self
+import matplotlib.pyplot as plt
+import copy
 import numpy as np
 from numpy.core.fromnumeric import shape, size
 
@@ -223,6 +225,7 @@ class Softmax_CrossEntropy(Base):
         denominator = np.sum(numerator)#, axis=-1, keepdims=True)
         softmax_result = numerator / denominator
         softmax_result = np.exp(self.X) / np.sum(np.exp(self.X), axis=0)
+        print
         # return softmax
 
         # CrossEntropy
@@ -273,9 +276,117 @@ def Accuracy(P,Y):
 
 
 # # Output: A 10 X 10 matrix
-# def ConfusionMatrix(P,Y):
-#     return None
+def ConfusionMatrix(P,Y):
+    #X-axis true class
+    #Y-axis Predicted class
+    cm = np.zeros((10, 10))
+    for i in range(len(P)):
+        if P[i] == Y[i]:
+            cm[P[i]][P[i]] = cm[P[i]][P[i]] + 1
+        else:
+            cm[P[i]][Y[i]] = cm[P[i]][Y[i]] + 1
+    #print(cm)
+    return cm
 
 # # Output: A Plot using matplotlib of the ROC curve and Report the AUC score
-# def ROC(P,Y):
-#     return None
+def ROC(P,Y):
+    thresholds = [0,.05,.1,.15,.2,.25,.3,.35,.4,.45,.5,.55,.6,.65,.7,.75,.8,.85,.9,.95,1]
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.0])
+    X_coordinates = []
+    Y_coordinates = []
+    for j in thresholds:
+        pred = copy.deepcopy(P)
+        orig = copy.deepcopy(Y)
+        TP = 0
+        FP = 0
+        TN = 0
+        FN = 0
+        #convert each P[k] to zeroes and ones
+        for k in range(len(pred)):
+            for i in range(len(pred[k])):
+                if pred[k][i] >= j:
+                    pred[k][i] = 1
+                else:
+                    pred[k][i] = 0
+        #print(P)
+        for k in range(len(pred)):
+            for i in range(len(pred[k])):
+                numberorg = orig[k]
+                numberpre = i
+                if pred[k][i] == 1:
+                    if numberorg == numberpre:
+                        TP = TP + 1
+                    else:
+                        FP = FP +1
+                elif pred[k][i] == 0:
+                    if numberorg == numberpre:
+                        FN = FN + 1
+                    else:
+                        TN =TN + 1
+        #print(TP)
+        #print(FP)
+        #print(TN)
+        #print(FN)
+        TPR = TP/(TP+FN)
+        FPR = FP/(FP+TN)
+        #print(TPR)
+        #print(FPR)
+        #plt.plot(FPR, TPR)
+        #plt.show()
+        X_coordinates.append(FPR)
+        Y_coordinates.append(TPR)
+        '''for val in range(0,10):
+            for k in range(len(P)):
+                for n in range(len(P[k])):
+                    if P[k][n] > j:
+                        number = list(P[k]).index(P[k][n])
+                        if number == Y[k] == val:
+                            TP = TP + 1
+                        elif P[k][n] == 0:
+                            TN =TN + 1
+                        else:
+                            if number == 0:
+                                FN =FN +1
+                            else:
+                                FP = FP + 1
+            TPR = TP/(TP+FN)
+            FPR = FP/(FP+TN)
+            plt.scatter(FPR,TPR)
+
+        for i in range(len(P)):
+            if max(P[i]) > j:
+                number = list(P[i]).index(max(P[i]))
+                if number == Y[i]:
+                    matrix[number][number] = matrix[number][number] + 1
+                else:
+                    matrix[number][Y[i]] = matrix[number][Y[i]] + 1
+        for k in range(0,10):
+            TP = matrix[k][k]
+            FP = sum(matrix[k]) - matrix[k][k]
+            FN = sum([i[k] for i in matrix]) - matrix[k][k]
+            x = np.matrix(matrix)
+            x_sum = x.sum()
+            TN = x_sum - (sum([i[k] for i in matrix]) + sum(matrix[k]) - matrix[k][k])
+            TPR.append(TP/(TP+FN))
+            FPR.append(FP/(FP+TN))
+        #finding the macro average of all classes
+        #TPRdict[j] = np.mean(TPR)
+        #FPRdict[j] = np.mean(FPR)
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.0])
+    for key, value in TPRdict.items():
+        plt.scatter(FPRdict[key],value)
+        #print(value)
+        #print(FPRdict[key])'''
+    #print(X_coordinates)
+    #print(Y_coordinates)
+    #plt.plot(X_coordinates, Y_coordinates)
+    #plt.show()
+    newtpr = []
+    newfpr = []
+    for i in range(len(X_coordinates)-1):
+        newtpr.append([Y_coordinates[i], Y_coordinates[i+1]])
+        newfpr.append([X_coordinates[i], X_coordinates[i + 1]])
+    auc = sum(np.trapz(newfpr, newtpr))+1
+    return auc
