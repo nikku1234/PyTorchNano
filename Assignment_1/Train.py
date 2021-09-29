@@ -14,13 +14,15 @@ import numpy as np
 #---------------------------------------------
 model = create_model()
 
-test_images = idx2numpy.convert_from_file(r"Assignment_1/Dataset/t10k-images-idx3-ubyte")
+test_images = idx2numpy.convert_from_file(
+    r"/Users/nikhil/Documents/GitHub/CSE-673-ComputationalVision/Assignment_1/Dataset/t10k-images-idx3-ubyte")
 test_labels = idx2numpy.convert_from_file(
-    r"Assignment_1/Dataset/t10k-labels-idx1-ubyte")
+    r"/Users/nikhil/Documents/GitHub/CSE-673-ComputationalVision/Assignment_1/Dataset/t10k-labels-idx1-ubyte")
 train_images = idx2numpy.convert_from_file(
-    r"Assignment_1/Dataset/train-images-idx3-ubyte")
+    r"/Users/nikhil/Documents/GitHub/CSE-673-ComputationalVision/Assignment_1/Dataset/train-images-idx3-ubyte")
 train_labels = idx2numpy.convert_from_file(
-    r"Assignment_1/Dataset/train-labels-idx1-ubyte")
+    r"/Users/nikhil/Documents/GitHub/CSE-673-ComputationalVision/Assignment_1/Dataset/train-labels-idx1-ubyte")
+
 
 batch_size = 32
 epoch = 3

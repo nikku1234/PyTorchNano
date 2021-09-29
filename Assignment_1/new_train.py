@@ -25,7 +25,7 @@ train_labels = idx2numpy.convert_from_file(
 batch_size = 32
 epoch = 3
 
-print()
+# print()
 
 #One-Hot Encode
 train_labels_one_hot = []
@@ -69,8 +69,8 @@ for i in range(epoch):
         #print(forward_output)
 
         forward_output = model.forward(np.expand_dims(train_images[j], axis=0))
-        print(forward_output.shape)
-        
+        # print(forward_output.shape)
+
         # softmax_output = softmax.forward(forward_output)
         # print(softmax_output)
         soft_cross_output, crossentropy_out = soft_cross.forward(forward_output, train_labels_one_hot[j].reshape((10, 1)))
@@ -79,10 +79,8 @@ for i in range(epoch):
         #print(soft_cross_output_loss)
 
         #Appending predicted and actual indices for accuracy
-        predicted_index.append(
-            list(soft_cross_output).index(max(soft_cross_output)))
-        actual_index.append(
-            list(train_labels_one_hot[j].reshape((10, 1))).index(1))
+        predicted_index.append(list(soft_cross_output).index(max(soft_cross_output)))
+        actual_index.append(list(train_labels_one_hot[j].reshape((10, 1))).index(1))
         # print("\nBackward")
         model.backward(soft_cross_output_loss)
         # print("backward done")

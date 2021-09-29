@@ -65,9 +65,6 @@ class Dense(Base):
         self.biases = self.biases - (0.001/32) * self.db
         self.dW = np.zeros(self.dW.shape)
         self.db = np.zeros(self.db.shape)
-    # def update(self):
-    #     self.dW /= batchsize
-
 
 # Convolutional Layer(10 pts)
 # Conv(X, 10, (3x3), 1, 1) - - > takes X as inputsize,
@@ -83,47 +80,42 @@ class Conv(Base):
         self.padding = padding
         self.backprop = np.zeros(out_channels,)
 
-        print(self.out_channels)
-        print(self.kernel_size[0])
+        # print(self.out_channels)
+        # print(self.kernel_size[0])
 
         self.kernal_val = np.random.randn(self.in_channels,self.kernel_size[0], self.kernel_size[1])
-        print(self.kernal_val.shape)
+        # print(self.kernal_val.shape)
 
         #Change it to different values using random.
         self.new_kernal = np.tile(self.kernal_val, self.out_channels).reshape(
             self.out_channels, self.in_channels, self.kernel_size[0], self.kernel_size[1])
-        
-        print(self.new_kernal.shape)
-        self.new_width = int(
-            (self.padded_image.shape[1]-self.new_kernal.shape[2])/self.stride + 1)  # (W1−F)/S+1
-        self.new_height = int(
-            (self.padded_image.shape[2]-self.new_kernal.shape[3])/self.stride + 1)  # (W2−F)/S+1
-        print(self.new_width, self.new_height)
-        self.backprop = np.zeros(self.out_channels, self.new_width, self.new_height)
 
 
     def forward(self,X):
         self.X = X
-        print(self.X.shape)
+        print("Input shape",self.X.shape)
 
         if self.padding > 0:
-            self.padded_image = np.pad(self.X, self.padding, pad_with, padder="0")
-
-            # self.padded_image = np.zeros((self.no_of_in_channels, self.X .shape[1] + (2 * self.padding), self.X .shape[2]+(2 * self.padding)))
+            # self.padded_image = np.pad(self.X, self.padding, pad_with, padder="0")
+            self.padded_image = np.pad(self.X,((0,0),(self.padding,self.padding),(self.padding,self.padding)))
         else:
             self.padded_image = self.X
 
-        print(self.padded_image.shape[1])
-        print(self.padded_image.shape[2])
         print("kernal shape:", self.kernel_size)
         print("padded image\n", self.padded_image.shape)
         print("new kernal\n", self.new_kernal.shape)
-        # stride = 2
-        # print("result")
+
+        self.new_width = int(
+            (self.padded_image.shape[1]-self.new_kernal.shape[2])/self.stride + 1)  # (W1−F)/S+1
+
+        self.new_height = int(
+            (self.padded_image.shape[2]-self.new_kernal.shape[3])/self.stride + 1)  # (W2−F)/S+1
+        print(self.new_width, self.new_height)
+        self.backprop = np.zeros(self.new_kernal.shape)
 
         
         result = np.zeros((self.new_kernal.shape[0], self.new_width, self.new_height))
-        print("shape:", result.shape)
+        print("Shape:", result.shape)
 
         # for channel in range(0, self.no_of_out_channels):
         a = 0
@@ -146,7 +138,7 @@ class Conv(Base):
                 for z in range(0,self.new_kernal.shape[0]):
                     result[z][iter1][iter2] = np.sum(conv[z])
                 
-                print(conv.shape)
+                # print(conv.shape)
                 # print(conv, sep="/t")
                 c += self.stride
                 d += self.stride
@@ -169,62 +161,86 @@ class Conv(Base):
 
     def backward(self, delta_value):
         #Convolving with dialted delta_value with kernal 
+        
         self.delta_value = delta_value
         print(self.delta_value.shape)
 
+        # Padding
         # if self.padding > 0:
-        #     self.padded_image = np.zeros((self.no_of_in_channels, self.X .shape[1] + (
-        #         2 * self.padding), self.X .shape[2]+(2 * self.padding)))
+            # self.padded_image = np.pad(self.X, self.padding, pad_with, padder="0")
+       
         # else:
-        #     self.padded_image = self.X
+            # self.padded_delta_value = self.delta_value
+
+
         #Dilate
-        if self.stride:
-            new_result = np.insert(self.delta_value, int(self.delta_value.shape[0]/2), np.zeros((self.stride-1, self.stride-1)), 0)
-            i = self.stride-1
-            while i:
-                new_result = np.insert(new_result, int(self.new_result.shape[1]/2), np.zeros((1, 1)), 1)
-                i -= 1
+        if self.stride>1:
+            for i in range(self.delta_value.shape[0]):
+                new_result = np.insert(self.delta_value[i], int(
+                    self.delta_value.shape[1]/2), np.zeros((self.stride-1, self.stride-1)), 0)
+                i = self.stride-1
+                while i:
+                    new_result = np.insert(new_result, int(self.new_result.shape[2]/2), np.zeros((1, 1)), 1)
+                    i -= 1
 
-                self.pad_res = np.pad(new_result, self.stride-1, pad_with, padder="0")
+                    # self.pad_res[i] = np.pad(new_result, self.stride-1, pad_with, padder="0")
         else:
-            self.pad_res = delta_value
-        print("final array after the dilation\n", self.pad_res)
-        self.flip_kernal = np.flipud(np.fliplr(self.kernal[0])) #Need to check the kernal inside value
-        print(self.flip_kernal)
+            self.pad_res = self.delta_value
+        
+        self.padded_delta_value = np.pad(self.pad_res,
+        ((0, 0), (self.new_kernal.shape[3]-1, self.new_kernal.shape[3]-1), (self.new_kernal.shape[3]-1, self.new_kernal.shape[3]-1)))
 
-        new_width = int((self.pad_res.shape[1]-self.flip_kernal.shape[1])/self.stride + 1)  # (W1−F)/S+1
-        new_height = int((self.pad_res.shape[2]-self.flip_kernal.shape[2])/self.stride + 1)  # (W2−F)/S+1
-        print(new_width, new_height)
-        back_result = np.zeros((self.no_of_channels, new_width, new_height))
+        self.pad_res_delta = self.padded_delta_value
+        # print(self.pad_res.shape)
+
+        # print("final array after the dilation\n", self.pad_res)
+        # Need to check the kernal inside value
+        self.flip_kernal = np.flipud(np.fliplr(self.new_kernal))
+        print(self.flip_kernal.shape)
+
+        # new_width = int((self.pad_res.shape[1]-self.flip_kernal.shape[2])/self.stride + 1)  # (W1−F)/S+1
+        # new_height = int((self.pad_res.shape[2]-self.flip_kernal.shape[3])/self.stride + 1)  # (W2−F)/S+1
+        # print(new_width, new_height)
+        back_result = np.zeros(self.X.shape)
+        if delta_value.shape == self.X.shape:
+            return np.zeros(self.X.shape)
         print("shape:", back_result.shape)
 
-        for channel in range(0, self.no_of_channels):
+
+        for channel in range(0, self.out_channels):
+            if channel > back_result.shape[0]:
+                back_result = self.X
+                break
+            else:
                 a = 0
-                b = self.flip_kernal.shape[1]
-                for i in range(0, new_width):
+                iter1 = 0
+                b = self.flip_kernal.shape[2]
+                for i in range(0, self.pad_res_delta.shape[1]):
                     # a = i
                     c = 0
-                    d = self.flip_kernal.shape[2]
-                    iter = 0
+                    d = self.flip_kernal.shape[3]
+                    iter2 = 0
                     # check the less than condition
-                    while d <= self.pad_res.shape[2]:
+                    while b <= self.pad_res_delta.shape[2] and d <= self.pad_res_delta.shape[2]:
                         print("a,b", a, b)
                         print("c,d", c, d)
                         print("multipying\n")
-                        print("padded image", self.pad_res[channel][a:b, c:d])
+                        print("padded image", self.pad_res_delta[channel][a:b, c:d])
                         print("*")
                         print("kernal", self.flip_kernal[channel])
-                        conv = np.sum(self.pad_res[channel][a:b, c:d]*self.flip_kernal[channel])
+                        conv = np.sum(
+                            self.pad_res_delta[channel, a:b, c:d]*self.flip_kernal[channel])
                         # print(conv, sep="/t")
                         c += self.stride
                         d += self.stride
-                        back_result[channel][i][iter] = conv
+                        back_result[channel][iter1][iter2] = conv
                         # % += 1
-                        iter += 1
+                        iter2 += 1
                         print("\n")
                     print("\t")
                     a += self.stride
                     b = a+self.flip_kernal.shape[2]
+                    iter1 += 1
                     # b = new_kernal.shape[0]
                 # print("result", result)
 
@@ -234,59 +250,63 @@ class Conv(Base):
         
 
 
+        # Convolving with dialted delta_value with kernal
+        if self.stride > 1:
+            for i in range(self.delta_value.shape[0]):
+                new_result = np.insert(self.padded_delta_value[i], int(
+                    self.padded_delta_value.shape[1]/2), np.zeros((self.stride-1, self.stride-1)), 0)
+                i = self.stride-1
+                while i:
+                    new_result = np.insert(new_result, int(
+                        self.new_result.shape[2]/2), np.zeros((1, 1)), 1)
+                    i -= 1
 
-
-
-        #Convolving with dialted delta_value with kernal
-        if self.stride:
-            new_result_2 = np.insert(self.delta_value, int(
-                self.delta_value.shape[0]/2), np.zeros((self.stride-1, self.stride-1)), 0)
-            i = self.stride-1
-            while i:
-                new_result_2 = np.insert(new_result_2, int(self.new_result.shape[1]/2), np.zeros((1, 1)), 1)
-                i -= 1
-
-             #   self.pad_res = np.pad(new_result, self.stride-1, pad_with, padder="0") (no padding)
+                    self.pad_res[i] = np.pad(
+                        new_result, self.stride-1, pad_with, padder="0")
         else:
-            self.pad_res_2 = delta_value
-        print("final array after the dilation\n", self.pad_res_2)
+            self.pad_res2 = self.delta_value
+
+        # print("final array after the dilation\n", self.pad_res)
         # Need to check the kernal inside value
         # self.flip_kernal = np.flipud(np.fliplr(self.kernal[0]))
         # print(self.flip_kernal)
 
-        new_width = int((self.pad_res_2.shape[1]- self.pad_res_2.shape[1])/self.stride + 1)  # (W1−F)/S+1
-        new_height = int((self.pad_res_2.shape[2]- self.pad_res_2.shape[2])/self.stride + 1)  # (W2−F)/S+1
-        print(new_width, new_height)
-        back_result_2 = np.zeros((self.no_of_channels, new_width, new_height))
-        print("shape:", back_result.shape)
+        # new_width = int((self.pad_res_2.shape[1]- self.pad_res_2.shape[1])/self.stride + 1)  # (W1−F)/S+1
+        # new_height = int((self.pad_res_2.shape[2]- self.pad_res_2.shape[2])/self.stride + 1)  # (W2−F)/S+1
+        # print(new_width, new_height)
+        back_result_2 = np.zeros((self.new_kernal.shape))
+        print("shape:", back_result_2.shape)
 
-        for channel in range(0, self.no_of_channels):
+        for channel in range(0, self.out_channels):
             a = 0
-            b = self.pad_res_2.shape[1]
-            for i in range(0, new_width):
+            b = self.pad_res2.shape[1]
+            iter1 = 0
+            for i in range(0, self.X.shape[0]):
                 # a = i
                 c = 0
-                d = self.pad_res_2.shape[2]
-                iter = 0
+                d = self.pad_res2.shape[2]
+                iter2 = 0
                 # check the less than condition
-                while d <= self.pad_res_2.shape[2]:
+                while b <= self.X.shape[2] and d <= self.pad_res2.shape[2]:
                     print("a,b", a, b)
                     print("c,d", c, d)
-                    print("multipying\n")
-                    print("padded image", self.pad_res_2[channel][a:b, c:d])
-                    print("*")
-                    print("kernal", self.flip_kernal[channel])
-                    conv = np.sum(self.padded_image[channel][a:b, c:d]*self.pad_res_2[channel])
+                    # print("multipying\n")
+                    # print("padded image", self.pad_res_2[channel][a:b, c:d])
+                    # print("*")
+                    # print("kernal", self.flip_kernal[channel])
+                    conv = np.sum(self.X[channel][a:b, c:d]
+                                  * self.pad_res2[channel])
                     # print(conv, sep="/t")
                     c += self.stride
                     d += self.stride
-                    back_result_2[channel][i][iter] = conv
+                    back_result_2[channel][iter1][iter2] = conv
                     # % += 1
-                    iter += 1
+                    iter2 += 1
                     print("\n")
                 print("\t")
                 a += self.stride
-                b = a+self.pad_res_2.shape[2]
+                b = a+self.pad_res2.shape[2]
+                iter1 += 1
                 # b = new_kernal.shape[0]
             # print("result", result)
 
@@ -294,14 +314,17 @@ class Conv(Base):
 
         print("result", back_result_2) # save it and update
         self.backprop += back_result_2
+        return back_result
 
     def update(self):
         # assert self.weights.shape == self.dW.shape
         self.weights = self.weights - (0.001/32) * self.dW  #dynamic value for 32
+
+        
         # assert self.biases.shape == self.db.shape
         # self.biases = self.biases - (0.001/32) * self.db
-        self.dW = np.zeros(self.dW.shape)
-        self.db = np.zeros(self.db.shape)
+        # self.dW = np.zeros(self.dW.shape)
+        # self.db = np.zeros(self.db.shape)
     # def update(self):
 
 
@@ -414,7 +437,6 @@ class MaxPool(Base):
         # self.in_channels = in_channels
 
         # TODO Change the shape of x(channel,_,_)
-
         self.no_of_channels = in_channels
         self.kernal_size = kernel_size
         self.stride = stride
@@ -457,7 +479,7 @@ class MaxPool(Base):
                     print(for_backward_temp[0][1]+c)
                     dimension_0 = for_backward_temp[0][0]+a
                     dimension_1 = for_backward_temp[0][1]+c
-                    self.backward_val[channel][dimension_0][dimension_1] = max_val
+                    self.backward_val[channel][dimension_0][dimension_1] = 1
                     print("\n")
                     c += self.stride
                     d += self.stride
@@ -474,12 +496,62 @@ class MaxPool(Base):
             # b += stride
 
         # print("result", pool_image)
-        print("result", pool_image.shape)
+        # print("result", pool_image.shape)
         # print("result", pool_image[0][0])
         return pool_image
 
-    def backward(self):
-        return self.backward_val
+    def backward(self, dz):
+        # a = 0
+        # b = self.backward_val.shape[2]
+        self.dz = dz
+        iter1 = 0
+        result = np.zeros(self.backward_val.shape)
+        # result = []
+        for channel in range(0, self.backward_val.shape[0]):
+            a = 0
+            b = self.dz.shape[1]
+            for i in range(0, self.backward_val.shape[1]):
+                # a = i
+                c = 0
+                d = self.dz.shape[2]
+                iter = 0
+                while d <= self.backward_val.shape[2]:
+                    temp = self.backward_val[channel][a:b, c:d]@dz[channel]
+                    # for_backward_temp = np.argwhere(
+                    #     self.padded_image[channel][a:b, c:d] == max_val)
+                    # print(max_val)
+                    # print(for_backward_temp[0][0]+a)
+                    # print(for_backward_temp[0][1]+c)
+                    # dimension_0 = for_backward_temp[0][0]+a
+                    # dimension_1 = for_backward_temp[0][1]+c
+                    # self.backward_val[channel][dimension_0][dimension_1] = 1
+                    print("\n")
+                    result[channel][a:b, c:d] = temp
+                    c += self.stride
+                    d += self.stride
+                    # % += 1
+                    iter += 1
+                    # print("\n")
+                # print("\t")
+                a += self.stride
+                b = a + self.kernal_size[1]
+                # b = new_kernal.shape[0]
+            # print("result", result)
+
+            # b += stride
+
+        # print("result", pool_image)
+        print("result", result.shape)
+        # print("result", pool_image[0][0])
+        return result
+
+        # pass
+
+        # return self.backward_val
+
+
+
+        # return np.multiply(self.backward_val, dz)
         # pass
 
 
@@ -499,7 +571,7 @@ class Flatten(Base):
 
     def backward(self, delta):
         self.delta = delta
-        self.original_shape = self.delta.reshape(self.X.shape[0], self.X.shape[1])
+        self.original_shape = self.delta.reshape(self.X.shape[0], self.X.shape[1],self.X.shape[2])
         return self.original_shape
 
 
@@ -523,15 +595,18 @@ class ReLU(Base):
 
     def forward(self, X):
         self.X = X
-        self.activated_neuorons = np.zeros(self.X.shape)
-        return np.maximum(X, 0)
+        # self.activated_neuorons = np.zeros(self.X.shape)
+        
+        return_val =  np.maximum(X, 0)
+        self.activated_neuorons = np.where(return_val>0,1,0)
+        return return_val
 
     def backward(self, val):
-        for i in range(len(self.X)):
-            if self.X[i] > 0:
-                self.activated_neuorons[i] = 1
-            else:
-                self.activated_neuorons[i] = 0
+        # for i in range(len(self.X)):
+        #     if self.X[i] > 0:
+        #         self.activated_neuorons[i] = 1
+        #     else:
+        #         self.activated_neuorons[i] = 0
         # self.activated_neuorons = self.X
         # print("shape of relu backward", np.multiply(self.activated_neuorons,val).shape)
         return np.multiply(self.activated_neuorons, val)
@@ -579,14 +654,15 @@ class Softmax_CrossEntropy(Base):
         pass
 
     def forward(self, X, Y):
-        self.X = X + 1e-9
+        self.X = X 
         self.Y = Y
         # softmax_result = (np.exp(self.X) / np.sum(np.exp(self.X), axis=0))
-        z = self.X - np.max(self.X, axis=-1, keepdims=True)
-        numerator = np.exp(z)
+        shift = np.max(self.X, axis=0, keepdims=True)
+        z = self.X - shift
+        numerator = np.exp(z) + 1e-9
         denominator = np.sum(numerator)  # , axis=-1, keepdims=True)
         softmax_result = numerator / denominator
-        softmax_result = np.exp(self.X) / np.sum(np.exp(self.X), axis=0)
+       # softmax_result = (np.exp(self.X) + 1e-9 )/ np.sum(np.exp(self.X), axis=0)
         # return softmax
 
         # CrossEntropy
