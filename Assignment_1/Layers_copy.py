@@ -94,6 +94,12 @@ class Conv(Base):
             self.out_channels, self.in_channels, self.kernel_size[0], self.kernel_size[1])
         
         print(self.new_kernal.shape)
+        self.new_width = int(
+            (self.padded_image.shape[1]-self.new_kernal.shape[2])/self.stride + 1)  # (W1−F)/S+1
+        self.new_height = int(
+            (self.padded_image.shape[2]-self.new_kernal.shape[3])/self.stride + 1)  # (W2−F)/S+1
+        print(self.new_width, self.new_height)
+        self.backprop = np.zeros(self.out_channels, self.new_width, self.new_height)
 
 
     def forward(self,X):
@@ -115,18 +121,15 @@ class Conv(Base):
         # stride = 2
         # print("result")
 
-        new_width = int((self.padded_image.shape[1]-self.new_kernal.shape[2])/self.stride + 1)  # (W1−F)/S+1
-        new_height = int((self.padded_image.shape[2]-self.new_kernal.shape[3])/self.stride + 1)  # (W2−F)/S+1
-        print(new_width, new_height)
-        self.backprop = np.zeros(self.out_channels, new_width,new_height)
-        result = np.zeros((self.new_kernal.shape[0], new_width, new_height))
+        
+        result = np.zeros((self.new_kernal.shape[0], self.new_width, self.new_height))
         print("shape:", result.shape)
 
         # for channel in range(0, self.no_of_out_channels):
         a = 0
         b = self.new_kernal.shape[2]
         iter1 = 0
-        for i in range(0, new_width):
+        for i in range(0, self.new_width):
             # a = i
             c = 0
             d = self.new_kernal.shape[3]
@@ -292,7 +295,14 @@ class Conv(Base):
         print("result", back_result_2) # save it and update
         self.backprop += back_result_2
 
-
+    def update(self):
+        # assert self.weights.shape == self.dW.shape
+        self.weights = self.weights - (0.001/32) * self.dW  #dynamic value for 32
+        # assert self.biases.shape == self.db.shape
+        # self.biases = self.biases - (0.001/32) * self.db
+        self.dW = np.zeros(self.dW.shape)
+        self.db = np.zeros(self.db.shape)
+    # def update(self):
 
 
 
