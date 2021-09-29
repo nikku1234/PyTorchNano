@@ -189,28 +189,36 @@ class Softmax(Base):
          return np.exp(x) / np.sum(np.exp(x), axis=0)
     
      def backward(self,x):
+
          pass
 
 
 
-# class Sigmoid(Base):
-#     def __init__(self):
-#         # super().__init__()
-#         pass
-#     def forward(self,X):
-#         self.X = X
-#         self.Z = 1.0 / (1.0 + np.exp(-1.0*self.X))
-#         return self.Z
-#     def backward(self,val):
-#         return super().backward()
+class Sigmoid(Base):
+     def __init__(self):
+         # super().__init__()
+         pass
+     def forward(self,X):
+         self.X = X
+         self.Z = 1.0 / (1.0 + np.exp(-1.0*self.X))
+         return self.Z
+     def backward(self,val):
+         back = (self.Z*(1-self.Z))*val
+         return back
 
 
 
 # # Loss Functions and Metrics(18 points)
 # # P -> prediction
 # # Y -> ground truth
-# def MSE(P,Y):
-#     return np.mean((P-Y)**2)
+class MSE(Base):
+    def __init__(self):
+        pass
+    def forward(self, P,Y):
+        return 0.5*(np.mean((P-Y)**2))
+
+    def backward(self, P,Y):
+        return Y-P
 
 class Softmax_CrossEntropy(Base):
     def __init__(self):
@@ -255,13 +263,17 @@ class CrossEntropy(Base):
 class Hinge(Base):
     def __init__(self):
         pass
-    def forward(self):
-        pass
-    def backward(self):
-        pass
-# def Hinge(P,Y):
-#     return np.max(0, Y - (1-2*Y)*P)
-
+    def forward(self, P,Y):
+        self.h = np.dot(Y,P)
+        self.back = np.zeros(self.h.shape)
+        return np.max(0, 1 - self.h)
+    def backward(self, P, Y):
+        for i in range(len(self.h)):
+            if self.h[i] >= 1:
+                self.back[i] = 0
+            else:
+                self.back[i] = -Y[i]
+        return self.back
 
 # # Output: A single value in %
 def Accuracy(P,Y):
@@ -336,49 +348,6 @@ def ROC(P,Y):
         #plt.show()
         X_coordinates.append(FPR)
         Y_coordinates.append(TPR)
-        '''for val in range(0,10):
-            for k in range(len(P)):
-                for n in range(len(P[k])):
-                    if P[k][n] > j:
-                        number = list(P[k]).index(P[k][n])
-                        if number == Y[k] == val:
-                            TP = TP + 1
-                        elif P[k][n] == 0:
-                            TN =TN + 1
-                        else:
-                            if number == 0:
-                                FN =FN +1
-                            else:
-                                FP = FP + 1
-            TPR = TP/(TP+FN)
-            FPR = FP/(FP+TN)
-            plt.scatter(FPR,TPR)
-
-        for i in range(len(P)):
-            if max(P[i]) > j:
-                number = list(P[i]).index(max(P[i]))
-                if number == Y[i]:
-                    matrix[number][number] = matrix[number][number] + 1
-                else:
-                    matrix[number][Y[i]] = matrix[number][Y[i]] + 1
-        for k in range(0,10):
-            TP = matrix[k][k]
-            FP = sum(matrix[k]) - matrix[k][k]
-            FN = sum([i[k] for i in matrix]) - matrix[k][k]
-            x = np.matrix(matrix)
-            x_sum = x.sum()
-            TN = x_sum - (sum([i[k] for i in matrix]) + sum(matrix[k]) - matrix[k][k])
-            TPR.append(TP/(TP+FN))
-            FPR.append(FP/(FP+TN))
-        #finding the macro average of all classes
-        #TPRdict[j] = np.mean(TPR)
-        #FPRdict[j] = np.mean(FPR)
-    plt.xlim([0.0, 1.0])
-    plt.ylim([0.0, 1.0])
-    for key, value in TPRdict.items():
-        plt.scatter(FPRdict[key],value)
-        #print(value)
-        #print(FPRdict[key])'''
     #print(X_coordinates)
     #print(Y_coordinates)
     #plt.plot(X_coordinates, Y_coordinates)
