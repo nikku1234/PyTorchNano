@@ -1,5 +1,5 @@
 from GraphNet import Net
-from Layers import *
+from Layers_copy import *
 
 def create_model():
 	Model = Net()
@@ -10,5 +10,5 @@ def create_model():
 	Model.add(Dense(in_features=25, out_features=32))
 	Model.add(ReLU())
 	Model.add(Dense(in_features=32, out_features=10))
-	Model.add(Softmax())
+	# Model.add(Softmax())
 	return Model

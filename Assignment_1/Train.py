@@ -1,4 +1,5 @@
 from Layers_copy import *
+from Utils import *
 from Model import create_model
 import idx2numpy
 import numpy as np
@@ -14,13 +15,15 @@ import numpy as np
 #---------------------------------------------
 model = create_model()
 
-test_images = idx2numpy.convert_from_file(r"./Dataset/t10k-images-idx3-ubyte")
+test_images = idx2numpy.convert_from_file(
+    r"./Dataset/t10k-images-idx3-ubyte")
 test_labels = idx2numpy.convert_from_file(
     r"./Dataset/t10k-labels-idx1-ubyte")
 train_images = idx2numpy.convert_from_file(
     r"./Dataset/train-images-idx3-ubyte")
 train_labels = idx2numpy.convert_from_file(
     r"./Dataset/train-labels-idx1-ubyte")
+
 
 batch_size = 32
 epoch = 3
@@ -42,77 +45,34 @@ for i in range(0,len(train_labels)):
 soft_cross = Softmax_CrossEntropy()
 softmax = Softmax()
 accuracy = 0
-
-
-#Testing
-test_labels_one_hot = []
-for i in range(0,len(test_labels)):
-    # print(train_labels[i])
-    temp = np.zeros(10)
-    temp[test_labels[i]] = 1
-    test_labels_one_hot.append(temp)
-    # print(temp)
-
-for i in range(epoch*2):
+for i in range(epoch):
     predicted_index = []
     actual_index = []
-    soft_cross_values = []
-    if i % 2 == 0:
-        for j in range(0,len(train_images)):
-            # print(j)
-            # if i % batch_size != 0:
-            # print("forward")
-            forward_output = model.forward(train_images[j].flatten().reshape(784, 1))
-            #print(forward_output)
+    for j in range(0,len(train_images)):
+        # print(j)
+        # if i % batch_size != 0:
+        # print("forward")
+        forward_output = model.forward(train_images[j].flatten().reshape(784, 1))
+        #print(forward_output)
 
-            # softmax_output = softmax.forward(forward_output)
-            # print(softmax_output)
-            soft_cross_output,crossentropy_out = soft_cross.forward(forward_output, train_labels_one_hot[j].reshape((10, 1)))
-            #print("crossentropy_out", crossentropy_out)
-            soft_cross_output_loss = soft_cross.backward(soft_cross_output, train_labels_one_hot[j].reshape((10,1)))
-            #print(soft_cross_output_loss)
+        # softmax_output = softmax.forward(forward_output)
+        # print(softmax_output)
+        soft_cross_output,crossentropy_out = soft_cross.forward(forward_output, train_labels_one_hot[j].reshape((10, 1)))
+        #print("crossentropy_out", crossentropy_out)
+        soft_cross_output_loss = soft_cross.backward(soft_cross_output, train_labels_one_hot[j].reshape((10,1)))
+        #print(soft_cross_output_loss)
 
-            #Appending predicted and actual indices for accuracy
-            predicted_index.append(list(soft_cross_output).index(max(soft_cross_output)))
-            actual_index.append(list(train_labels_one_hot[j].reshape((10,1))).index(1))
-            # print("\nBackward")
-            model.backward(soft_cross_output_loss)
-            # print("backward done")
-            if (j% batch_size == 0 and j!=0):
-                model.update()
-                # print("updated")
-            accuracy = Accuracy(predicted_index, actual_index)
-            #print(j)
-        print("Train Accuracy: " + str(accuracy) + "%")
-    else:
-        for j in range(0,len(test_images)):
-            # print(j)
-            # if i % batch_size != 0:
-            # print("forward")
-            forward_output = model.forward(test_images[j].flatten().reshape(784, 1))
-            #print(forward_output)
-
-            # softmax_output = softmax.forward(forward_output)
-            # print(softmax_output)
-            soft_cross_output,crossentropy_out = soft_cross.forward(forward_output, test_labels_one_hot[j].reshape((10, 1)))
-            #print("crossentropy_out", crossentropy_out)
-            soft_cross_output_loss = soft_cross.backward(soft_cross_output, test_labels_one_hot[j].reshape((10,1)))
-            #print(soft_cross_output_loss)
-
-            #Appending predicted and actual indices for accuracy
-            predicted_index.append(list(soft_cross_output).index(max(soft_cross_output)))
-            actual_index.append(list(test_labels_one_hot[j].reshape((10,1))).index(1))
-            soft_cross_values.append(soft_cross_output) #list of lists of predictions
-                # print("updated")
-            accuracy = Accuracy(predicted_index, actual_index)
-            #print(j)
-        ConfusionMatrix(predicted_index,actual_index)
-        AUC_Score = ROC(soft_cross_values,actual_index)
-        print(AUC_Score)
-        print("Test Accuracy: " + str(accuracy) + "%")
-
-
-
+        #Appending predicted and actual indices for accuracy
+        predicted_index.append(list(soft_cross_output).index(max(soft_cross_output)))
+        actual_index.append(list(train_labels_one_hot[j].reshape((10,1))).index(1))
+        # print("\nBackward")
+        model.backward(soft_cross_output_loss)
+        # print("backward done")
+        if (j% batch_size == 0 and j!=0):
+            model.update()
+            # print("updated")  
+        accuracy = Accuracy(predicted_index, actual_index)
+        print("Accuracy: " + str(accuracy) + "%")
 
 
 

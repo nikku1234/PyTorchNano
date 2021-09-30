@@ -1,5 +1,5 @@
 from GraphNet import Net
-from Layers import *
+from Layers_copy import *
 
 def create_model():
 	Model = Net()
@@ -14,6 +14,6 @@ def create_model():
 	Model.add(Conv(in_channels=8, out_channels=16, kernel_size=(1,1), stride=1, padding=0))
 	Model.add(AvgPool(in_channels=16, kernel_size=(4,3), stride=3, padding=0))
 	Model.add(Flatten())
-	Model.add(Linear(in_features=16, out_features=10))
-	Model.add(Softmax())
+	Model.add(Dense(in_features=16, out_features=10))
+	# Model.add(Softmax())
 	return Model

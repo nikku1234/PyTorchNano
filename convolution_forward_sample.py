@@ -128,6 +128,10 @@ from numpy.core.fromnumeric import shape, size
 # print("result",result)
 
 
+
+
+#working code
+
 new_image = np.array([[1, 0, 0, 2, 2],
                       [2, 2, 1, 0, 0],
                       [2, 0, 2, 1, 1],
@@ -184,6 +188,7 @@ for i in range(0, new_width):
         c += stride
         d += stride
         result[i][iter] = conv
+        # % += 1
         iter += 1
         print("\n")
     print("\t")
@@ -196,3 +201,13 @@ for i in range(0, new_width):
 print("result", result)
 
 
+
+#working on channels
+
+# image = np.random(size=(3,5,5))
+img = np.random.random_integers(0, 255, (5, 5, 3))
+kernal = np.random.random_integers(0, 5, (3, 3, 3))
+
+print(img.shape)
+# print(img)
+print(kernal.shape)
