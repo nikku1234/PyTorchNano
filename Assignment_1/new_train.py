@@ -76,7 +76,7 @@ for i in range(epoch):
         soft_cross_output, crossentropy_out = soft_cross.forward(forward_output, train_labels_one_hot[j].reshape((10, 1)))
         #print("crossentropy_out", crossentropy_out)
         soft_cross_output_loss = soft_cross.backward(soft_cross_output, train_labels_one_hot[j].reshape((10, 1)))
-        #print(soft_cross_output_loss)
+        print("loss:", crossentropy_out)
 
         #Appending predicted and actual indices for accuracy
         predicted_index.append(list(soft_cross_output).index(max(soft_cross_output)))
