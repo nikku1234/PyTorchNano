@@ -1,5 +1,5 @@
 from Layers_copy import *
-from Model_tests.Model_4 import create_model
+from Model_tests.Model_1 import create_model
 import idx2numpy
 import numpy as np
 # from mnist import MNIST

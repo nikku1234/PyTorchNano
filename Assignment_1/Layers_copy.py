@@ -332,8 +332,8 @@ class Conv(Base):
                 #conv = new_image[:, :, a:b, c:d]*self.new_dilated_delta
                 # self.gradient[:,:,iter1,iter2] = np.sum(conv, axis=(-2, -1))
                 for z in range(0, self.new_kernal.shape[1]):
-
                     self.return_delta[z][iter1][iter2] = np.sum(val[z])
+
                 c += self.stride
                 d += self.stride
                 iter2 += 1
@@ -585,8 +585,8 @@ class MaxPool(Base):
 
         self.activated_values = np.zeros((self.padded_image.shape[0], self.padded_image.shape[1], self.padded_image.shape[2]))
 
-        new_width = int((self.padded_image.shape[1]-self.kernal_size[0])/self.stride + 1)  # (W1−F)/S+1
-        new_height = int((self.padded_image.shape[2]-self.kernal_size[1])/self.stride + 1)  # (W2−F)/S+1
+        new_width = int(math.floor((self.padded_image.shape[1]-self.kernal_size[0])/self.stride + 1))  # (W1−F)/S+1
+        new_height = int(math.floor((self.padded_image.shape[2]-self.kernal_size[1])/self.stride + 1))  # (W2−F)/S+1
         # print(new_width, new_height)
         pool_image = np.zeros((self.no_of_channels, new_width, new_height))
 
@@ -644,6 +644,8 @@ class MaxPool(Base):
                 d = self.dz.shape[2]
                 iter = 0
                 while d <= self.backward_val.shape[2]:
+                    # print(dz[channel].shape)
+                    # print(self.backward_val[channel][a:b, c:d].shape)
                     temp = self.backward_val[channel][a:b, c:d]@dz[channel]
                     # for_backward_temp = np.argwhere(
                     #     self.padded_image[channel][a:b, c:d] == max_val)
