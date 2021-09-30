@@ -1,5 +1,5 @@
 from GraphNet import Net
-from Layers import *
+from Layers_copy import *
 
 def create_model():
 	Model = Net()
@@ -11,5 +11,5 @@ def create_model():
 	Model.add(Dense(in_features=32, out_features=48))
 	Model.add(Sigmoid())
 	Model.add(Dense(in_features=48, out_features=10))
-	Model.add(Softmax())
+	# Model.add(Softmax())
 	return Model
