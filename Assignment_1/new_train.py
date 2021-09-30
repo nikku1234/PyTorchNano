@@ -1,6 +1,6 @@
 from Layers_copy import *
 from Utils import *
-from Model import create_model
+from Model_5 import create_model
 import idx2numpy
 import numpy as np
 # from mnist import MNIST
@@ -165,6 +165,7 @@ for i in range(epoch*2):
         confusion_matrix = ConfusionMatrix(predicted_index, actual_index)
         print("Confusion Matrix:")
         print(confusion_matrix)
-        AUC_Score = ROC(soft_cross_values, actual_index)
+        plot, AUC_Score = ROC(soft_cross_values, actual_index)
+        plt.savefig(str(i) + 'ROC.png')
         print("AUC score:" + str(AUC_Score))
         print("Test Accuracy: " + str(accuracy) + "%")

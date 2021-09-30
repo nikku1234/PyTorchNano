@@ -85,14 +85,14 @@ def ROC(P,Y):
     plt.plot(X_coordinates, Y_coordinates)
     plt.xlabel('FPR')
     plt.ylabel('TPR')
-    plt.show()
+    #plt.show()
     newtpr = []
     newfpr = []
     for i in range(len(X_coordinates)-1):
         newtpr.append([Y_coordinates[i], Y_coordinates[i+1]])
         newfpr.append([X_coordinates[i], X_coordinates[i + 1]])
     auc = sum(np.trapz(newfpr, newtpr))+1
-    return auc
+    return plt, auc
 
 
 
