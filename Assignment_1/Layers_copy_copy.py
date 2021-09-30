@@ -3,7 +3,6 @@
 # from _typeshed import Self
 import numpy as np
 from numpy.core.fromnumeric import shape, size
-from numpy.lib import math
 from Utils import pad_with
 
 # Layers(30 Points + 15 Bonus Points)
@@ -91,26 +90,27 @@ class Conv(Base):
         self.new_kernal = np.tile(self.kernal_val, self.out_channels).reshape(
             self.out_channels, self.in_channels, self.kernel_size[0], self.kernel_size[1])
 
-        self.gradient = np.zeros((self.new_kernal.shape))
-
-
 
     def forward(self,X):
         self.X = X
-        # print("Input shape",self.X.shape)
+        print("Input shape",self.X.shape)
 
         if self.padding > 0:
+            # self.padded_image = np.pad(self.X, self.padding, pad_with, padder="0")
             self.padded_image = np.pad(self.X,((0,0),(self.padding,self.padding),(self.padding,self.padding)))
         else:
             self.padded_image = self.X
 
-        # print("kernal shape:", self.kernel_size)
-        # print("padded image\n", self.padded_image.shape)
-        # print("new kernal\n", self.new_kernal.shape)
+        print("kernal shape:", self.kernel_size)
+        print("padded image\n", self.padded_image.shape)
+        print("new kernal\n", self.new_kernal.shape)
 
-        self.new_width = int(math.floor((self.padded_image.shape[1]-self.new_kernal.shape[2])/self.stride) + 1)  # (W1−F)/S+1
-        self.new_height = int(math.floor((self.padded_image.shape[2]-self.new_kernal.shape[3])/self.stride) + 1)  # (W2−F)/S+1
-        
+        self.new_width = int(
+            (self.padded_image.shape[1]-self.new_kernal.shape[2])/self.stride + 1)  # (W1−F)/S+1
+
+        self.new_height = int(
+            (self.padded_image.shape[2]-self.new_kernal.shape[3])/self.stride + 1)  # (W2−F)/S+1
+        print(self.new_width, self.new_height)
         self.backprop = np.zeros(self.new_kernal.shape)
 
         
@@ -128,12 +128,12 @@ class Conv(Base):
             iter2 = 0
             # check the less than condition
             while d <= self.padded_image.shape[2]:
-                # print("a,b", a, b)
-                # print("c,d", c, d)
+                print("a,b", a, b)
+                print("c,d", c, d)
                 # print("multipying\n")
                 # print("padded image", self.padded_image[:,a:b,c:d].shape)
                 # print("*")
-                # print("kernal", self.new_kernal.shape)
+                print("kernal", self.new_kernal.shape)
                 conv = self.padded_image[:,a:b,c:d]*self.new_kernal
                 for z in range(0,self.new_kernal.shape[0]):
                     result[z][iter1][iter2] = np.sum(conv[z])
@@ -160,224 +160,170 @@ class Conv(Base):
         return result
 
     def backward(self, delta_value):
-
         #Convolving with dialted delta_value with kernal 
+        
         self.delta_value = delta_value
         print(self.delta_value.shape)
 
-        # Convolving with dialted delta_value with kernal
-        if self.stride > 1:
+        # Padding
+        # if self.padding > 0:
+            # self.padded_image = np.pad(self.X, self.padding, pad_with, padder="0")
+       
+        # else:
+            # self.padded_delta_value = self.delta_value
+
+
+        #Dilate
+        if self.stride>1:
             temp_pad_res = []
             for i in range(self.delta_value.shape[0]):
-                new_result = np.insert(self.padded_delta_value[i], int(self.padded_delta_value.shape[1]/2), np.zeros((self.stride-1, self.stride-1)), 0)
+                new_result = np.insert(self.delta_value[i], int(
+                    self.delta_value.shape[1]/2), np.zeros((self.stride-1, self.stride-1)), 0)
                 i = self.stride-1
                 while i:
                     new_result = np.insert(new_result, int(new_result.shape[1]/2), np.zeros((1, 1)), 1)
                     i -= 1
 
                     temp_pad_res.append(new_result)
-            self.dilated_delta = np.array(temp_pad_res)
-            print(self.padded_delta.shape)
-
+            self.pad_res = temp_pad_res
         else:
-            self.dilated_delta = self.delta_value
-
-        print("output gradient shape:", self.gradient.shape)
-        print("dilated_delta shape", self.dilated_delta.shape)
-        # print("",)
-
-        a = 0
-        b = self.dilated_delta.shape[2]
-        iter1 = 0
-        new_image = np.reshape(self.X,(1,self.X.shape[0],self.X.shape[1],self.X.shape[2]))
-        print("reshaped image shape",new_image.shape)
-        self.new_dilated_delta = np.reshape(self.dilated_delta,(self.dilated_delta.shape[0],1,self.dilated_delta.shape[1],self.dilated_delta.shape[2]))
-        print("reshaped new_dilated_delta", self.new_dilated_delta.shape)
-        for i in range(0, self.gradient.shape[1]):
-            # a = i
-            c = 0
-            d = self.dilated_delta.shape[2]
-            iter2 = 0
-            # check the less than condition
-            while b<=self.X.shape[2] and d <= self.X.shape[2]:
-                conv = new_image[:, :, a:b, c:d]*self.new_dilated_delta
-                self.gradient[:,:,iter1,iter2] = np.sum(conv, axis=(-2, -1))
-
-                # print(np.sum(conv,axis=(-1,-2)).shape)
-                # for z in range(0, self.dilated_delta.shape[0]):
-                #     self.gradient[z][iter1][iter2] = np.sum(conv[z])
-                c += self.stride
-                d += self.stride
-                iter2 += 1
-                print("\n")
-            print("\t")
-            a += self.stride
-            b = a+self.dilated_delta.shape[2]
-            iter1 += 1
-        print("gradients", self.gradient.shape)
-        self.gradient += self.gradient
-
-
-
-
-        # for channel in range(0, self.out_channels):
-        #     a = 0
-        #     b = self.pad_res2.shape[1]
-        #     iter1 = 0
-        #     for i in range(0, self.X.shape[0]):
-        #         # a = i
-        #         c = 0
-        #         d = self.pad_res2.shape[2]
-        #         iter2 = 0
-        #         # check the less than condition
-        #         while b <= self.X.shape[2] and d <= self.pad_res2.shape[2]:
-        #             print("a,b", a, b)
-        #             print("c,d", c, d)
-        #             # print("multipying\n")
-        #             # print("padded image", self.pad_res_2[channel][a:b, c:d])
-        #             # print("*")
-        #             # print("kernal", self.flip_kernal[channel])
-        #             conv = np.sum(self.X[channel][a:b, c:d]
-        #                           * self.pad_res2[channel])
-        #             # print(conv, sep="/t")
-        #             c += self.stride
-        #             d += self.stride
-        #             back_result_2[channel][iter1][iter2] = conv
-        #             # % += 1
-        #             iter2 += 1
-        #             print("\n")
-        #         print("\t")
-        #         a += self.stride
-        #         b = a+self.pad_res2.shape[2]
-        #         iter1 += 1
-        #         # b = new_kernal.shape[0]
-        #     # print("result", result)
-
-        #     # b += stride
-
-        # print("result", back_result_2)  # save it and update
-        # self.backprop += back_result_2
-
-
-
-
-
-
-
-        # #Dilate
-        # if self.stride>1:
-        #     temp_pad_res = []
-        #     for i in range(self.delta_value.shape[0]):
-        #         new_result = np.insert(self.delta_value[i], int(
-        #             self.delta_value.shape[1]/2), np.zeros((self.stride-1, self.stride-1)), 0)
-        #         i = self.stride-1
-        #         while i:
-        #             new_result = np.insert(new_result, int(new_result.shape[1]/2), np.zeros((1, 1)), 1)
-        #             i -= 1
-
-        #             temp_pad_res.append(new_result)
-        #     self.pad_res = temp_pad_res
-        # else:
-        #     self.pad_res = self.delta_value
+            self.pad_res = self.delta_value
         
-        self.padded_delta_value = np.pad(self.dilated_delta,((0, 0), (self.new_kernal.shape[3]-1, self.new_kernal.shape[3]-1), (self.new_kernal.shape[3]-1, self.new_kernal.shape[3]-1)))
+        self.padded_delta_value = np.pad(self.pad_res,
+        ((0, 0), (self.new_kernal.shape[3]-1, self.new_kernal.shape[3]-1), (self.new_kernal.shape[3]-1, self.new_kernal.shape[3]-1)))
 
-        # self.pad_res_delta = self.padded_delta_value
+        self.pad_res_delta = self.padded_delta_value
+        # print(self.pad_res.shape)
 
+        # print("final array after the dilation\n", self.pad_res)
         # Need to check the kernal inside value
         self.flip_kernal = np.flipud(np.fliplr(self.new_kernal))
-        print("flip_kernal_shape:",self.flip_kernal.shape)
+        print(self.flip_kernal.shape)
 
-        self.return_delta = np.zeros(self.X.shape)
-        print("shape return_delta:", self.return_delta.shape)
-
-        print("new_kernal shape",self.new_kernal.shape)
-
-        self.reshaped_delta = np.reshape(self.padded_delta_value, (self.padded_delta_value.shape[0], 1, self.padded_delta_value.shape[1], self.padded_delta_value.shape[2]))
-        print(self.reshaped_delta.shape)
-
-        a = 0
-        b = self.new_kernal.shape[2]
-        iter1 = 0
-        for i in range(0, self.return_delta.shape[1]):
-            c = 0
-            d = self.new_kernal.shape[2]
-            iter2 = 0
-            # check the less than condition
-            while b <= self.padded_delta_value.shape[2] and d <= self.padded_delta_value.shape[2]:
-                val = self.reshaped_delta[:, :, a:b, c:d]*self.new_kernal
-                # print(np.sum(val,axis=0).shape)
-                # val = np.sum(val,axis=0)
-                # self.return_delta[:, iter1, iter2] = val
-
-                print(np.sum(val,axis=0).shape)
-                val = np.sum(val, axis=0)
-                for z in range(0, self.new_kernal.shape[1]):
-                    self.return_delta[z][iter1][iter2] = np.sum(val[z])
-                c += self.stride
-                d += self.stride
-                iter2 += 1
-                print("\n")
-            print("\t")
-            a += self.stride
-            b = a+self.new_kernal.shape[2]
-            iter1 += 1
-        print("return_delta", self.return_delta.shape)
-
-        return self.return_delta
+        # new_width = int((self.pad_res.shape[1]-self.flip_kernal.shape[2])/self.stride + 1)  # (W1−F)/S+1
+        # new_height = int((self.pad_res.shape[2]-self.flip_kernal.shape[3])/self.stride + 1)  # (W2−F)/S+1
+        # print(new_width, new_height)
+        back_result = np.zeros(self.X.shape)
+        if delta_value.shape == self.X.shape:
+            return np.zeros(self.X.shape)
+        print("shape:", back_result.shape)
 
 
+        for channel in range(0, self.out_channels):
+            if channel > back_result.shape[0]:
+                back_result = self.X
+                break
+            else:
+                a = 0
+                iter1 = 0
+                b = self.flip_kernal.shape[2]
+                for i in range(0, self.pad_res_delta.shape[1]):
+                    # a = i
+                    c = 0
+                    d = self.flip_kernal.shape[3]
+                    iter2 = 0
+                    # check the less than condition
+                    while b <= self.pad_res_delta.shape[2] and d <= self.pad_res_delta.shape[2]:
+                        print("a,b", a, b)
+                        print("c,d", c, d)
+                        print("multipying\n")
+                        print("padded image", self.pad_res_delta[channel][a:b, c:d])
+                        print("*")
+                        print("kernal", self.flip_kernal[channel])
+                        conv = np.sum(
+                            self.pad_res_delta[channel, a:b, c:d]*self.flip_kernal[channel])
+                        # print(conv, sep="/t")
+                        c += self.stride
+                        d += self.stride
+                        back_result[channel][iter1][iter2] = conv
+                        # % += 1
+                        iter2 += 1
+                        print("\n")
+                    print("\t")
+                    a += self.stride
+                    b = a+self.flip_kernal.shape[2]
+                    iter1 += 1
+                    # b = new_kernal.shape[0]
+                # print("result", result)
+
+                # b += stride
+
+        print("result", back_result.shape) #backprop
+        
 
 
+        # Convolving with dialted delta_value with kernal
+        if self.stride > 1:
+            temp_pad_res = []
+            for i in range(self.delta_value.shape[0]):
+                new_result = np.insert(self.padded_delta_value[i], int(
+                    self.padded_delta_value.shape[1]/2), np.zeros((self.stride-1, self.stride-1)), 0)
+                i = self.stride-1
+                while i:
+                    new_result = np.insert(new_result, int(new_result.shape[1]/2), np.zeros((1, 1)), 1)
+                    i -= 1
 
-        # for channel in range(0, self.out_channels):
-        #     if channel > back_result.shape[0]:
-        #         back_result = self.X
-        #         break
-        #     else:
-        #         a = 0
-        #         iter1 = 0
-        #         b = self.flip_kernal.shape[2]
-        #         for i in range(0, self.pad_res_delta.shape[1]):
-        #             # a = i
-        #             c = 0
-        #             d = self.flip_kernal.shape[3]
-        #             iter2 = 0
-        #             # check the less than condition
-        #             while b <= self.pad_res_delta.shape[2] and d <= self.pad_res_delta.shape[2]:
-        #                 print("a,b", a, b)
-        #                 print("c,d", c, d)
-        #                 print("multipying\n")
-        #                 print("padded image", self.pad_res_delta[channel][a:b, c:d])
-        #                 print("*")
-        #                 print("kernal", self.flip_kernal[channel])
-        #                 conv = np.sum(
-        #                     self.pad_res_delta[channel, a:b, c:d]*self.flip_kernal[channel])
-        #                 # print(conv, sep="/t")
-        #                 c += self.stride
-        #                 d += self.stride
-        #                 back_result[channel][iter1][iter2] = conv
-        #                 # % += 1
-        #                 iter2 += 1
-        #                 print("\n")
-        #             print("\t")
-        #             a += self.stride
-        #             b = a+self.flip_kernal.shape[2]
-        #             iter1 += 1
-        #             # b = new_kernal.shape[0]
-        #         # print("result", result)
+                    temp_pad_res.append(new_result)
+            self.pad_res2 = np.array(temp_pad_res)
+            print(self.pad_res2.shape)
 
-        #         # b += stride
+            # self.pad_res2.res
+        else:
+            self.pad_res2 = self.delta_value
 
-        # print("result", back_result.shape) #backprop
-        # return back_result
+        # print("final array after the dilation\n", self.pad_res)
+        # Need to check the kernal inside value
+        # self.flip_kernal = np.flipud(np.fliplr(self.kernal[0]))
+        # print(self.flip_kernal)
+
+        # new_width = int((self.pad_res_2.shape[1]- self.pad_res_2.shape[1])/self.stride + 1)  # (W1−F)/S+1
+        # new_height = int((self.pad_res_2.shape[2]- self.pad_res_2.shape[2])/self.stride + 1)  # (W2−F)/S+1
+        # print(new_width, new_height)
+        back_result_2 = np.zeros((self.new_kernal.shape))
+        print("shape:", back_result_2.shape)
+
+        for channel in range(0, self.out_channels):
+            a = 0
+            b = self.pad_res2.shape[1]
+            iter1 = 0
+            for i in range(0, self.X.shape[0]):
+                # a = i
+                c = 0
+                d = self.pad_res2.shape[2]
+                iter2 = 0
+                # check the less than condition
+                while b <= self.X.shape[2] and d <= self.pad_res2.shape[2]:
+                    print("a,b", a, b)
+                    print("c,d", c, d)
+                    # print("multipying\n")
+                    # print("padded image", self.pad_res_2[channel][a:b, c:d])
+                    # print("*")
+                    # print("kernal", self.flip_kernal[channel])
+                    conv = np.sum(self.X[channel][a:b, c:d]
+                                  * self.pad_res2[channel])
+                    # print(conv, sep="/t")
+                    c += self.stride
+                    d += self.stride
+                    back_result_2[channel][iter1][iter2] = conv
+                    # % += 1
+                    iter2 += 1
+                    print("\n")
+                print("\t")
+                a += self.stride
+                b = a+self.pad_res2.shape[2]
+                iter1 += 1
+                # b = new_kernal.shape[0]
+            # print("result", result)
+
+            # b += stride
+
+        print("result", back_result_2) # save it and update
+        self.backprop += back_result_2
+        return back_result
 
     def update(self):
         # assert self.weights.shape == self.dW.shape
-        assert self.new_kernal.shape == self.gradient.shape
-        self.new_kernal = self.new_kernal - (0.001/32) * self.gradient
-        self.gradient = np.zeros(self.new_kernal.shape)
-        # dynamic value for 32
+        self.weights = self.weights - (0.001/32) * self.dW  #dynamic value for 32
 
         
         # assert self.biases.shape == self.db.shape
