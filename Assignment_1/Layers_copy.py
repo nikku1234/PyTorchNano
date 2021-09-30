@@ -321,7 +321,7 @@ class Conv(Base):
             d = self.new_kernal.shape[2]
             iter2 = 0
             # check the less than condition
-            while b < self.padded_delta_value.shape[2] and d < self.padded_delta_value.shape[2]:
+            while b < self.return_delta.shape[2] and d < self.return_delta.shape[2]:
                 val = self.reshaped_delta[:, :, a:b, c:d]*self.new_kernal
                 # print(np.sum(val,axis=0).shape)
                 # val = np.sum(val,axis=0)
@@ -329,7 +329,7 @@ class Conv(Base):
 
                 # print(np.sum(val,axis=0).shape)
                 val = np.sum(val, axis=0)
-                #                 conv = new_image[:, :, a:b, c:d]*self.new_dilated_delta
+                #conv = new_image[:, :, a:b, c:d]*self.new_dilated_delta
                 # self.gradient[:,:,iter1,iter2] = np.sum(conv, axis=(-2, -1))
                 for z in range(0, self.new_kernal.shape[1]):
 
