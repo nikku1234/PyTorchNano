@@ -1,1 +1,0 @@
-# CSE-673-ComputationalVision
