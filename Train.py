@@ -57,7 +57,6 @@ cp = CrossEntropy()
 accuracy = 0
 # sigmoid =Sigmoid()
 mse = MSE()
-hinge = Hinge()
 
 # testing = np.array([[[1, 0, 1],
 #                        [0, 1, 0],

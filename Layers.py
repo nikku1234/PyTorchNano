@@ -828,20 +828,6 @@ class Softmax_CrossEntropy(Base):
         return P-Y
 
 
-
-
-
-class Hinge(Base):
-    def __init__(self):
-        pass
-
-    def forward(self, P, Y):
-        return np.max(0, Y - (1-2*Y)*P)
-
-    def backward(self):
-        pass
-
-
 class CrossEntropy(Base):
     def __init__(self):
         # super().__init__()
