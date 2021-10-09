@@ -8,7 +8,7 @@ import numpy as np
 # mnist = MNIST('../dataset/MNIST')
 # x_train, y_train = mnist.load_training()  # 60000 samples
 # x_test, y_test = mnist.load_testing()  # 10000 samples
-
+#test
 
 #---------------------------------------------
 # The following method would create the model
