@@ -122,5 +122,3 @@ Appropriate penalties will be added if the code does not comply with the specifi
 You will submit Assignment1.zip or Assigment1.tar.gz, a compressed archive file containing the following files:
 
 - Layers.py, Model.py, GraphNet.py, Train.py and Utils.py (if any).
-
-Submission is due 09/30/2021,Thursday, 11:59 PM EST. Please use the submit\_cse673 script in Timberlake to submit your assignment. You may resubmit your assignment as many times as you want before the deadline, we will use the most recent submission for grading.
